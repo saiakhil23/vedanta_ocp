@@ -3,3 +3,31 @@ Non-Prod Openshift cluster DNS entries
 api.valnpocp.vedantaconnect.com      A 10.101.141.183
 
 *.apps.valnpocp.vedantaconnect.com   A 10.101.141.183
+
+
+
+registry.redhat.io	443, 80
+quay.io	443, 80
+cdn.quay.io	443, 80
+cdn01.quay.io	443, 80
+cdn02.quay.io	443, 80
+cdn03.quay.io	443, 80
+sso.redhat.com	443, 80
+cert-api.access.redhat.com	443, 80
+api.access.redhat.com	443, 80
+infogw.api.openshift.com	443, 80
+console.redhat.com/api/ingress, cloud.redhat.com/api/ingress	443, 80
+mirror.openshift.com	443, 80
+storage.googleapis.com/openshift-release	443, 80
+*.apps.<cluster_name>.<base_domain>	443, 80
+quayio-production-s3.s3.amazonaws.com	443, 80
+api.openshift.com	443, 80
+rhcos.mirror.openshift.com	443, 80
+console.redhat.com/openshift	443, 80
+registry.access.redhat.com	443, 80
+sso.redhat.com	443, 80
+registry.connect.redhat.com	443, 80
+rhc4tp-prod-z8cxf-image-registry-us-east-1-evenkyleffocx	443, 80
+qvofrk.s3.dualstack.us-east-1.amazonaws.com	443, 80
+oso-rhc4tp-docker-registry.s3-us-west-2.amazonaws.com	443, 80
+
