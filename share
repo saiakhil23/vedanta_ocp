@@ -1,1 +1,5 @@
-dhedfk
+Non-Prod Openshift cluster DNS entries
+======================================
+api.valnpocp.vedantaconnect.com      A 10.101.141.183
+
+*.apps.valnpocp.vedantaconnect.com   A 10.101.141.183
