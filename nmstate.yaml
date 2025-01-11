@@ -1,0 +1,28 @@
+interfaces:
+- name: bond0
+  type: bond
+  state: up
+  ipv4:
+    address:
+    - ip: 10.101.143.23
+      prefix-length: 24
+    enabled: true
+  link-aggregation:
+    mode: active-backup
+    options:
+      miimon: '100'
+    port:
+    - ens4f0np0
+    - ens4f1np1
+routes:
+  config:
+  - destination: 0.0.0.0/0
+    metric: 150
+    next-hop-address: 10.101.143.1
+    next-hop-interface: bond0
+    table-id: 254
+dns-resolver:
+  config:
+    server:
+      - 10.101.141.119
+      - 10.101.142.118
