@@ -1,0 +1,26 @@
+***********************10.101.143.11 - 30 Openshift**************************
+
+Prod Cluster Openshift DNS entries
+========================
+api.valpocp.vedantaconnect.com         VIP: 10.101.143.11
+api-int.valpocp.vedantaconnect.com     VIP: 10.101.143.12
+*.apps.valpocp.vedantaconnect.com      VIP: 10.101.143.13
+
+
+vlocpsrvm1.valpocp.vedantaconnect.com     IP: 10.101.143.14
+vlocpsrvm2.valpocp.vedantaconnect.com     IP: 10.101.143.15
+vlocpsrvm3.valpocp.vedantaconnect.com     IP: 10.101.143.16
+vlocpsrvw1.valpocp.vedantaconnect.com     IP: 10.101.143.17
+vlocpsrvw2.valpocp.vedantaconnect.com     IP: 10.101.143.18
+vlocpsrvw3.valpocp.vedantaconnect.com     IP: 10.101.143.19
+
+registry.valpocp.vedantaconnect.com    IP: 10.101.143.20
+bootstrap.valpocp.vedantaconnect.com   IP: 10.101.143.21
+bastion.valpocp.vedantaconnect.com     IP: 10.101.143.22
+
+
+Non-Prod Openshift cluster DNS entries
+====================================== 
+api.valnpocp.vedantaconnect.com      A	10.101.143.23
+
+*.apps.valnpocp.vedantaconnect.com   A	10.101.143.23
