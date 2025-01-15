@@ -1,0 +1,176 @@
+
+bcdedit /set hypervisorlaunchtype off
+
+https://console.redhat.com/openshift/downloads#tool-mirror-registry
+Hardware requirements for mirror registry server
+-------------------------------------------------
+12GB RAM
+4CPU's
+500GB storage
+
+1. openshift installer
+https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.12.30/openshift-install-linux.tar.gz
+ 
+2. oc client
+https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.12.30/openshift-client-linux.tar.gz
+ 
+3. oc mirror
+https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.12.30/oc-mirror.tar.gz
+ 
+4.mirror-registry tool
+https://developers.redhat.com/content-gateway/file/pub/openshift-v4/clients/mirror-registry/1.3.10/mirror-registry.tar.gz
+ 
+5. core-os
+https://mirror.openshift.com/pub/openshift-v4/x86_64/dependencies/rhcos/4.12/4.12.30/rhcos-live.x86_64.iso
+
+
+
+pre-requisites
+=============
+mirror-registry tool
+oc-mirror client  
+oc client
+
+
+un-tar all the tar files and move oc and oc-mirror to /usr/local/bin
+
+
+tar xvzf oc-mirror.tar.gz
+chmod +x oc-mirror
+sudo mv oc-mirror /usr/local/bin/.
+
+Run oc mirror help to verify that the plugin was successfully installed
+
+
+
+install mirror registry using following command
+---------------------------------------------- 
+create a folder "mirror_registry" to store the configuration files 
+
+mkdir -p /root/mirror_registry/
+
+
+./mirror-registry install --quayHostname image.ocp4.imss.com --quayRoot /root/mirror_registry 
+
+
+if error came in RHEL-9 use below command 
+=========================================
+
+mkdir -p /root/mirror_registry/config
+mkdir -p /root/mirror_registry/storage
+
+./mirror-registry install --quayHostname registry.ocp4.imss.com --quayRoot /root/mirror_registry/config --quayStorage /root/mirror_registry/storage
+
+note
+=====
+if you get an error while executing above command like "125 error" 
+
+solution:  you need to use higher version of rhel(>8) or update the packages using (yum update -y)
+=====
+
+if you face error like connection refused, check ss -yupln | grep 8443. if already listening then rebbot or kill .
+
+to uninstall mirror registry command "./mirror-registry install --targetHostname registry.ocp4.imss.com --quayRoot /root/mirror_registry/config --quayStorage /root/mirror_registry/storage"
+
+once the installation is completed we will get URL:
+--------------------------------------------------
+Quay is available at https://mirror.ocp4.imss.com:8443
+with credentials (init, 36VSqNAaj0p5UBxyX82Z1LOv4QJP79Gu)
+
+note
+====
+config files created at /root/mirror_registry/config  (because we have given --quayRoot /root/mirror_registry/config) and if we dont specify --quayRoot /root/mirror_registry/config config files by default will be stored into /$HOME/quay-install directory.
+
+copy ssl.cert file present in /root/mirror_registry/config into /etc/pki/ca-trust/source/anchors/ for both registry and bastion server as well.
+
+then execute, update-ca-trust extract command   --> so that it not required to use --tls-verify=false while logging into registry using podman command and our system to trust the certificate authority.
+
+log into quay registry 
+-----------------------
+note: user = init
+      password = (generate new cli password at dashboard)
+
+
+podman login -u init -p <password> <host_example_com>:8443> --tls-verify=false 
+
+curl -k https://<host_example_com>:8443 
+curl -k https://image.ocp4.imss.com:8443 
+           
+          OR
+https://<host.example.com>:8443  --> in browser
+https://registry.ocp4.imss.com:8443
+
+
+
+Configuring credentials that allow images to be mirrored
+=========================================================
+
+1. Download the pull secret and convert into JSON
+              (link to pull secret is "https://console.redhat.com/openshift/install/pull-secret")
+
+    cat ./pull-secret | jq . > pull-secret.json 
+	
+2. Generate the base64-encoded user name and password or token for your mirror registry
+    
+   echo -n '<user_name>:<password>' | base64 -w0 
+    
+	
+   <user_name> = init 
+   <password> = (generate cli password at dashboard) 
+   
+ note: specify the user name and password that you configured for your registry.
+ ====
+    
+3. Edit the JSON file and add a section that describes your registry to it
+
+     "auths": {
+    "<mirror_registry>": { 
+      "auth": "<credentials>", 
+      "email": "you@example.com"
+    }
+  },
+  
+example:
+--------
+    auths": {
+    "registry.ocp4.imss.com:8443": {
+      "auth": "aW5pdDpBSnNqQmRoUjVjenBOWmFaR1lCWk5LajJSMVlVajJidDdjZlZabzRtckFkbEN4eGFOdmFFQUF5RndvZ2FIWUpybFJQMjU4M2ZDNWt6WkVNR2VKdWVtUXhsajBmcnhTSHl5Yk4zWkJZR3N6QT0K",
+      "email": "amansingh@imss.co.in"
+    },
+4.Create env Variables
+  vi /etc/environment
+  
+OCP_RELEASE="4.13.17"
+LOCAL_REGISTRY="image.ocp4.imss.com:8443"
+LOCAL_REPOSITORY="ocp4/openshift4"
+PRODUCT_REPO="openshift-release-dev"
+LOCAL_SECRET_JSON="/root/pull-secret.json"
+RELEASE_NAME="ocp-release"
+ARCHITECTURE="x86_64"
+
+THEN EXECUTE "source /etc/environment"
+
+5. Execute the following command to download the images to the  registry (firsr do DRY_RUN and execute the command)
+
+   oc adm release mirror -a ${LOCAL_SECRET_JSON} --from=quay.io/${PRODUCT_REPO}/${RELEASE_NAME}:${OCP_RELEASE}-${ARCHITECTURE} --to=${LOCAL_REGISTRY}/${LOCAL_REPOSITORY} --to-release-image=${LOCAL_REGISTRY}/${LOCAL_REPOSITORY}:${OCP_RELEASE}-${ARCHITECTURE} --dry-run  
+
+
+copy these lines at the end of copying and save in a file  
+---------------------------------------------------------
+imageContentSources: 
+- mirrors:
+  - <local_registry>/<local_repository_name>/release
+  source: quay.io/openshift-release-dev/ocp-release
+- mirrors:
+  - <local_registry>/<local_repository_name>/release
+  source: quay.io/openshift-release-dev/ocp-v4.0-art-dev   
+  
+
+Points to be remembered 
+=======================
+1. Generate new cli password for mirror-registry at dashboard for init user
+2. Don't forgot to give port for registry at pull-secret.json files
+3. check the ram consumtion of the registry server
+4. add the ssl.cert which is generated after registrycreation to /etc/pki/ca-trust/source/anchors/
+      update-ca-trust extract
+5. add same ssl.cert in install-config file 
