@@ -41,3 +41,128 @@ rhc4tp-prod-z8cxf-image-registry-us-east-1-evenkyleffocx	443, 80
 qvofrk.s3.dualstack.us-east-1.amazonaws.com	443, 80
 oso-rhc4tp-docker-registry.s3-us-west-2.amazonaws.com	443, 80
 
+
+[root@bastion trident-installer]# oc new-project trident
+Now using project "trident" on server "https://api.prdservices.tatacapital.com:6443".
+You can add applications to this project with the 'new-app' command. For example, try:
+  oc new-app rails-postgresql-example
+to build a new example application in Ruby. Or use kubectl to deploy a simple Kubernetes application:
+  kubectl create deployment hello-node --image=k8s.gcr.io/e2e-test-images/agnhost:2.33 -- /agnhost serve-hostname
+[root@bastion trident-installer]# pwd
+/root/trident-prod/trident-installer
+[root@bastion trident-installer]# cd deploy/crds/
+[root@bastion crds]# ls -ltr
+total 32
+-rw-r--r-- 1 root root 175 Apr 29 01:36 tridentorchestrator_cr.yaml
+-rw-r--r-- 1 root root 203 Apr 29 01:36 tridentorchestrator_cr_imagepullsecrets.yaml
+-rw-r--r-- 1 root root 179 Apr 29 01:36 tridentorchestrator_cr_default.yaml
+-rw-r--r-- 1 root root 178 Apr 29 01:36 tridentorchestrator_cr_customimage.yaml
+-rw-r--r-- 1 root root 261 Apr 29 01:36 tridentorchestrator_cr_autosupport.yaml
+-rw-r--r-- 1 root root 168 Apr 29 01:36 tridentorchestrator_cr_audit_log.yaml
+-rw-r--r-- 1 root root 585 Apr 29 01:36 trident.netapp.io_tridentorchestrators_crd.yaml
+-rw-r--r-- 1 root root 585 Apr 29 01:36 trident.netapp.io_tridentorchestrators_crd_post1.16.yaml
+[root@bastion crds]#
+[root@bastion crds]#
+[root@bastion crds]#
+finish
+Tata Capital Consulting Engagement Report
+OCP 4.12 Cluster Deployment - Prod
+45
+v1.1
+[root@bastion crds]# pwd
+/root/trident-prod/trident-installer/deploy/crds
+[root@bastion crds]#
+[root@bastion crds]#
+[root@bastion crds]#
+....
+Create CRD for trident operator
+....
+[root@bastion crds]# oc create -f trident.netapp.io_tridentorchestrators_crd_post1.16.yaml -n trident
+customresourcedefinition.apiextensions.k8s.io/tridentorchestrators.trident.netapp.io created
+[root@bastion deploy]#
+[root@bastion deploy]# oc create -f ./bundle_post_1_25.yaml -n trident
+clusterrole.rbac.authorization.k8s.io/trident-operator created
+clusterrolebinding.rbac.authorization.k8s.io/trident-operator created
+serviceaccount/trident-operator created
+deployment/trident-operator created
+# Warning: would violate PodSecurity "restricted:v1.24": allowPrivilegeEscalation != false (container "trident-operator"
+must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "trident-operator" must
+set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "trident-operator" must set
+securityContext.runAsNonRoot=true), seccompProfile (pod or container "trident-operator" must set
+securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+# We might get above warning, because of authorization restriction on OCP. Provide relevant scc to service account as
+shown,
+[root@bastion deploy]# pwd
+/root/trident-prod/trident-installer/deploy
+[root@bastion deploy]#
+[root@bastion deploy]# oc adm policy add-scc-to-user anyuid system:serviceaccount:trident:trident-operator
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:anyuid added: "trident-operator"
+[root@bastion crds]# oc describe pod trident-operator-6856db8579-2lftf | grep -i scc
+  openshift.io/scc: anyuid
+[root@bastion crds]#
+==============================================================================================================
+bundle post yaml will create required roles, service account, rolebindings etc. required by trident controller.
+==============================================================================================================
+/root/trident-prod/trident-installer/deploy/crds
+[root@bastion crds]#
+[root@bastion crds]#
+[root@bastion crds]#
+[root@bastion crds]#
+[root@bastion crds]# ls -ltr
+total 32
+-rw-r--r-- 1 root root 175 Apr 29 01:36 tridentorchestrator_cr.yaml
+-rw-r--r-- 1 root root 203 Apr 29 01:36 tridentorchestrator_cr_imagepullsecrets.yaml
+-rw-r--r-- 1 root root 179 Apr 29 01:36 tridentorchestrator_cr_default.yaml
+-rw-r--r-- 1 root root 178 Apr 29 01:36 tridentorchestrator_cr_customimage.yaml
+-rw-r--r-- 1 root root 261 Apr 29 01:36 tridentorchestrator_cr_autosupport.yaml
+-rw-r--r-- 1 root root 168 Apr 29 01:36 tridentorchestrator_cr_audit_log.yaml
+-rw-r--r-- 1 root root 585 Apr 29 01:36 trident.netapp.io_tridentorchestrators_crd.yaml
+-rw-r--r-- 1 root root 585 Apr 29 01:36 trident.netapp.io_tridentorchestrators_crd_post1.16.yaml
+[root@bastion crds]# oc create -f ./tridentorchestrator_cr.yaml -n trident
+tridentorchestrator.trident.netapp.io/trident created
+finish
+Tata Capital Consulting Engagement Report
+OCP 4.12 Cluster Deployment - Prod
+46
+v1.1
+[root@bastion crds]# oc get tridentorchestrators.trident.netapp.io trident -n trident
+NAME AGE
+trident 13d
+• Verify trident operator, controller and daemonset pods are running
+[root@bastion crds]# oc get pods -owide
+NAME READY STATUS RESTARTS AGE IP NODE
+NOMINATED NODE READINESS GATES
+trident-controller-7df85686d5-mg852 6/6 Running 0 23h 10.128.4.36
+worker3.prdservices.tatacapital.com <none> <none>
+trident-node-linux-2w8fb 2/2 Running 0 23h 172.16.6.95
+worker5.prdservices.tatacapital.com <none> <none>
+trident-node-linux-bcb8b 2/2 Running 0 23h 172.16.6.86
+master1.prdservices.tatacapital.com <none> <none>
+trident-node-linux-cvbg4 2/2 Running 0 23h 172.16.6.94
+worker4.prdservices.tatacapital.com <none> <none>
+trident-node-linux-fx27r 2/2 Running 0 23h 172.16.6.100
+infra2.prdservices.tatacapital.com <none> <none>
+trident-node-linux-gdptn 2/2 Running 0 23h 172.16.6.87
+master2.prdservices.tatacapital.com <none> <none>
+trident-node-linux-kqrr7 2/2 Running 0 23h 172.16.6.93
+worker3.prdservices.tatacapital.com <none> <none>
+trident-node-linux-nt97l 2/2 Running 0 23h 172.16.6.92
+worker2.prdservices.tatacapital.com <none> <none>
+trident-node-linux-p49zv 2/2 Running 0 23h 172.16.6.99
+infra1.prdservices.tatacapital.com <none> <none>
+trident-node-linux-rgk89 2/2 Running 0 23h 172.16.6.88
+master3.prdservices.tatacapital.com <none> <none>
+trident-node-linux-rvf59 2/2 Running 0 23h 172.16.6.91
+worker1.prdservices.tatacapital.com <none> <none>
+trident-node-linux-zxcvg 2/2 Running 0 23h 172.16.6.101
+infra3.prdservices.tatacapital.com <none> <none>
+trident-operator-6856db8579-2lftf 1/1 Running 0 4d4h 10.131.2.23
+worker2.prdservices.tatacapital.com <none> <none>
+[root@bastion crds]#
+[root@bastion trident-installer]# ./tridentctl version -n trident
++----------------+----------------+
+| SERVER VERSION | CLIENT VERSION |
++----------------+----------------+
+| 23.04.0 | 23.04.0 |
++----------------+----------------
+
