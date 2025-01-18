@@ -1,0 +1,86 @@
+
+Referance:
+---------
+https://docs.openshift.com/container-platform/4.16/installing/installing_bare_metal_ipi/ipi-install-post-installation-configuration.html
+
+Butane Package:
+--------------
+curl -s https://mirror.openshift.com/pub/openshift-v4/clients/butane/latest/butane --output 
+
+#chmod +x butane
+
+
+#butane --version
+
+
+- Create a butane file .bu extension for Both  the worker and master nodes
+
+1. 
+
+vi 99-worker-chrony.bu
+
+variant: openshift
+version: 4.16.0
+metadata:
+  name: 99-worker-chrony
+  labels:
+    machineconfiguration.openshift.io/role: worker
+storage:
+  files:
+  - path: /etc/chrony.conf
+    mode: 0644
+    overwrite: true
+    contents:
+      inline: |
+        server 20.20.20.20 iburst
+        server 10.10.10.10 iburst
+        driftfile /var/lib/chrony/drift
+        makestep 1.0 3
+        rtcsync
+        logdir /var/log/chrony
+
+# butane 99-worker-chrony.bu -o 99-worker-chrony.yaml      =====> this will generate machine config with /etc/chrony.conf content as metioned above 
+
+# oc create -f ./99-worker-chrony.yaml
+		
+2. 
+
+vi 99-master-chrony.bu
+
+variant: openshift
+version: 4.16.0
+metadata:
+  name: 99-master-chrony
+  labels:
+    machineconfiguration.openshift.io/role: master
+storage:
+  files:
+  - path: /etc/chrony.conf
+    mode: 0644
+    overwrite: true
+    contents:
+      inline: |
+        server 20.20.20.20 iburst
+        server 10.10.10.10 iburst
+        driftfile /var/lib/chrony/drift
+        makestep 1.0 3
+        rtcsync
+        logdir /var/log/chrony
+
+# butane 99-master-chrony.bu -o 99-master-chrony.yaml      
+
+# oc create -f ./99-master-chrony.yaml
+				
+
+
+3 ==>  
+		
+# ls -ltr
+total 16
+-rw-r--r-- 1 root root 489 Aug 22 12:30 99-worker-chrony.bu
+-rw-r--r-- 1 root root 489 Aug 22 12:30 99-master-chrony.bu
+-rw-r--r-- 1 root root 608 Aug 22 12:35 99-worker-chrony.yaml
+-rw-r--r-- 1 root root 608 Aug 22 12:53 99-master-chrony.yaml		
+
+
+# oc get mc | grep -i chron
