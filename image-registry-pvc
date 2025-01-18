@@ -1,0 +1,21 @@
+[root@bastion image-registry]# cat pvc-provisioning.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ocp-registry-pvc
+spec:
+  # SAME NAME AS THE STORAGECLASS
+  storageClassName: ontap-nas-sc
+  accessModes:
+  - ReadWriteMany
+  # Must be the same as PersistentVolume
+  resources:
+  requests:
+  storage: 300Gi
+finish
+Tata Capital Consulting Engagement Report
+OCP 4.12 Cluster Deployment - Prod
+53
+v1.1
+[root@bastion image-registry]# oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch
+'{"spec":{"storage":{"pvc":{ "claim": "ocp-registry-pvc"}}}}'
