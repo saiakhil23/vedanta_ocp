@@ -1,0 +1,40 @@
+"global":
+  "resolve_timeout": "5m"
+  "smtp_from": "ocpprodintmonitoring@goindigo.in"
+  "smtp_smarthost": "mail.interglobe.com:25"
+  "smtp_require_tls": false
+"inhibit_rules":
+- "equal":
+  - "namespace"
+  - "alertname"
+  "source_match":
+    "severity": "critical"
+  "target_match_re":
+    "severity": "warning|info"
+- "equal":
+  - "namespace"
+  - "alertname"
+  "source_match":
+    "severity": "warning"
+  "target_match_re":
+    "severity": "info"
+"receivers":
+- "name": "Default"
+  "email_configs":
+  - "to": "6edigitalsre@goindigo.in"
+    "headers":
+      "subject": 'Openshift-PROD Integration Alert {{ template "email.default.subject" . }}'
+"route":
+  "group_by":
+  - "namespace"
+  "group_interval": "5m"
+  "group_wait": "30s"
+  "receiver": "Default"
+  "repeat_interval": "12h"
+  "routes":
+  - "match":
+      "alertname": "Watchdog"
+    "receiver": "Default"
+  - "match":
+      "severity": "critical"
+    "receiver": "Default"
