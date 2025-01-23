@@ -1,0 +1,24 @@
+apiVersion: v1
+baseDomain: imss.co.in 
+compute: 
+- hyperthreading: Enabled 
+  name: worker
+  replicas: 0 
+controlPlane: 
+  hyperthreading: Enabled 
+  name: master
+  replicas: 3 
+metadata:
+  name: grp2 
+networking:
+  clusterNetwork:
+  - cidr: 10.128.0.0/14 
+    hostPrefix: 23 
+  networkType: OVNKubernetes 
+  serviceNetwork: 
+  - 172.30.0.0/16
+platform:
+  none: {} 
+fips: false 
+pullSecret: '{"auths":{"registry.apps.grp2.imss.co.in:8443": {"auth": "aW5pdDo1dUk4YmlnOU5lUjRjL1A4Y1FpNE9PNGhqdjVsWjN5WEdRY0V3VFpuZ1pPVXpUZ3JpOHdrOXNmRzluWmlHeVNha2V3YkdvMDFKUm9NdGVvTjZObWhYc2RmQmtveVljcmRXMHdNM1M1VUxuQT0=","email": "thanuja.u@imss.co.in"}}}' 
+sshKey: 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICEwA4ggI20PTbfBhyPKndujPZID3KKJoC8cEORxAmbX core@localhost.localdomain' 
