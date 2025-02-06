@@ -1,7 +1,9 @@
 "global":
   "resolve_timeout": "5m"
-  "smtp_from": "ocpprodintmonitoring@goindigo.in"
-  "smtp_smarthost": "mail.interglobe.com:25"
+  "smtp_from": "VLJ.ITMS@vedanta.co.in"
+  "smtp_smarthost": "smtp.office365.com:587"
+  "smtp_auth_username": "VLJ.ITMS@vedanta.co.in"
+  "smtp_auth_password": "ushwhiuwxzsdw"
   "smtp_require_tls": false
 "inhibit_rules":
 - "equal":
@@ -21,9 +23,9 @@
 "receivers":
 - "name": "Default"
   "email_configs":
-  - "to": "6edigitalsre@goindigo.in"
+  - "to": "sre@test.in"
     "headers":
-      "subject": 'Openshift-PROD Integration Alert {{ template "email.default.subject" . }}'
+      "subject": 'Openshift-PROD-ITMS Cluster Alert {{ template "email.default.subject" . }}'
 "route":
   "group_by":
   - "namespace"
