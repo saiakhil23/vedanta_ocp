@@ -1,3 +1,21 @@
+
+
+Cluster network name resource 'SQL Network Name (SQLDBCLUSTER)' failed to create its associated computer object in domain 'valjha.vedantaresource.local' during: Resource online.
+
+The text for the associated error code is: Access is denied.
+
+
+Please work with your domain administrator to ensure that:
+- The cluster identity 'PRODVMDB$' has Create Computer Objects permissions. By default all computer objects are created in the same container as the cluster identity 'PRODVMDB$'.
+- The quota for computer objects has not been reached.
+- If there is an existing computer object, verify the Cluster Identity 'PRODVMDB$' has 'Full Control' permission to that computer object using the Active Directory Users and Computers tool.
+
+
+
+
+
+https://teams.microsoft.com/l/meetup-join/19:r1WQx5qq0SbTEdEId_jzHmDlBmZojZSCPpHR4u952n01@thread.tacv2/1736420421278?context=%7B%22Tid%22:%228ff40e0b-c096-4660-961c-adf91961b33d%22,%22Oid%22:%229925e25f-d33e-4659-bbdd-547851fe9a18%22%7D
+
 oc get csr -o go-template='{{range .items}}{{if not .status}}{{.metadata.name}}{{"\n"}}{{end}}{{end}}' | xargs oc adm certificate approve
  
 oc patch -n openshift-ingress-operator ingresscontroller/default --patch '{"spec":{"replicas": 3}}' --type=merge
