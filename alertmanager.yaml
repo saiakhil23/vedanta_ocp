@@ -23,7 +23,19 @@
 "receivers":
 - "name": "Default"
   "email_configs":
-  - "to": "sre@test.in"
+  - "to": "samiran.chatterjee@tcs.com"
+    "headers":
+      "subject": 'Openshift-PROD-ITMS Cluster Alert {{ template "email.default.subject" . }}'
+  - "to": "suhel.ahemed@tcs.com"
+    "headers":
+      "subject": 'Openshift-PROD-ITMS Cluster Alert {{ template "email.default.subject" . }}'
+  - "to": "ahmed.m1@tcs.com"
+    "headers":
+      "subject": 'Openshift-PROD-ITMS Cluster Alert {{ template "email.default.subject" . }}'
+  - "to": "praveen.babeley@tcs.com"
+    "headers":
+      "subject": 'Openshift-PROD-ITMS Cluster Alert {{ template "email.default.subject" . }}'
+  - "to": "arnab.ghosh4@tcs.com"
     "headers":
       "subject": 'Openshift-PROD-ITMS Cluster Alert {{ template "email.default.subject" . }}'
 "route":
